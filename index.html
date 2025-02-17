@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EcoLife Smart Recycling Bin Prototype</title>
+  <style>
+    body {
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%; /* Adjust width as needed */
+    max-width: 800px;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+
+.upload-area {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #3e8e41;
+}
+
+.feedback-area {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.list-area {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+#recyclingList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#recyclingList li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#recyclingList li:last-child {
+    border-bottom: none;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EcoLife Smart Recycling Bin</h1>
+    <div class="upload-area">
+      <p>Simulate Image Upload:</p>
+      <input type="file" id="imageUpload" accept="image/*">
+      <button id="analyzeButton">Analyze</button>
+    </div>
+    <div class="feedback-area">
+      <h2>Feedback:</h2>
+      <p id="feedbackText">Upload an image to get started.</p>
+    </div>
+    <div class="list-area">
+      <h2>Recycling Log</h2>
+      <ul id="recyclingList"></ul>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+  <script>
+    const imageUpload = document.getElementById('imageUpload');
+    const analyzeButton = document.getElementById('analyzeButton');
+    const feedbackText = document.getElementById('feedbackText');
+    const recyclingList = document.getElementById('recyclingList');
+
+    // Load the pre-trained MobileNet model
+    async function loadModel() {
+      const model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json');
+      return model;
+    }
+
+    // Analyze the uploaded image
+    async function analyzeImage() {
+      const file = imageUpload.files[0];
+      if (!file) {
+        feedbackText.textContent = "Please upload an image first.";
+        return;
+      }
+
+      const model = await loadModel();
+      const img = await tf.browser.fromPixels(document.getElementById('image'));
+      const preprocessedImg = tf.image.resizeBilinear(img, [224, 224]).toFloat().div(255).expandDims();
+      const predictions = await model.predict(preprocessedImg);
+      const classIndex = predictions.argMax(-1).dataSync()[0];
+
+      // For demonstration purposes, assume classIndex 0-4 represent recyclable materials
+      if (classIndex >= 0 && classIndex <= 4) {
+        feedbackText.textContent = `This looks like a recyclable material!`;
+        const listItem = document.createElement('li');
+        listItem.textContent = `${file.name} - Recyclable`;
+        recyclingList.appendChild(listItem);
+      } else {
+        feedbackText.textContent = `This does not appear to be a recyclable material.`;
+      }
+    }
+
+    analyzeButton.addEventListener('click', analyzeImage);
+  </script>
+</body>
+</html>
