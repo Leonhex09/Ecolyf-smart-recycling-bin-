@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recycling Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .what-to-do-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #nonRecyclableButton {
+            background-color: #FFC080;
+        }
+
+        #recyclableButton {
+            background-color: #8BC34A;
+        }
+
+        .btn:hover {
+            background-color: #ccc;
+        }
+
+        #header {
+            color: #008000;
+            animation: fadeIn 2s; /* Apply the fade in animation */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0; /* Start with 0 opacity (hidden) */
+            }
+            to {
+                opacity: 1; /* End with 1 opacity (fully visible) */
+            }
+        }
+
+        #steps-section {
+            width: 80%;
+            margin: 40px auto;
+            background-color: #FFFFFF;
+            padding: 20px;
+            border: 1px solid #DDDDDD;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #steps-section h2 {
+            color: #008000;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h1 id="header">WHAT TO DO FOR</h1>
+    </center>
+    <div class="what-to-do-buttons">
+        <button id="nonRecyclableButton" class="btn">Non-recyclables</button>
+        <button id="recyclableButton" class="btn">Recyclables</button>
+    </div>
+    <section id="steps-section">
+        <!-- Steps will be displayed here -->
+    </section>
+
+    <script>
+        const nonRecyclableButton = document.getElementById('nonRecyclableButton');
+        const recyclableButton = document.getElementById('recyclableButton');
+        const stepsSection = document.getElementById('steps-section');
+        const header = document.getElementById('header');
+
+        let isRecyclable = false;
+
+        nonRecyclableButton.addEventListener('click', () => {
+            isRecyclable = false;
+            updateText();
+        });
+
+        recyclableButton.addEventListener('click', () => {
+            isRecyclable = true;
+            updateText();
+        });
+
+        function updateText() {
+            if (isRecyclable) {
+                header.innerText = 'RECYCLABLE MATERIALS';
+                header.style.color = '#008000';
+                stepsSection.innerHTML = `
+                    <h2>Step 1: Sort and Separate</h2>
+                    <p>Sort recyclable materials from non-recyclable ones.</p>
+                    <h2>Step 2: Rinse and Clean</h2>
+                    <p>Rinse food and liquid containers, and remove lids, labels, and caps.</p>
+                    <h2>Step 3: Recycle</h2>
+                    <p>Place sorted materials in designated recycling bins.</p>
+                `;
+            } else {
+                header.innerText = 'NON-RECYCLABLE MATERIALS';
+                header.style.color = '#FF0000';
+                stepsSection.innerHTML = `
+                    <h2>Step 1: Identify the Material</h2>
+                    <p>Check the product label or consult local guidelines to determine if it's non-recyclable.</p>
+                    <h2>Step 2: Store Them Properly</h2>
+                    <p>Keep non-recyclable materials in their original packaging or store them in a designated area.</p>
+                    <h2>Step 3: Dispose of Them Appropriately</h2>
+                    <p>Contact your local waste management provider for guidelines on disposing of non-recyclable materials.</p>
+                `;
+            }
+        }
+         updateText();
+    </script>
+</body>
+</html>

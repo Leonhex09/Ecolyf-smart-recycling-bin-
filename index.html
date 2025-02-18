@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EcoLife Smart Recycling Bin Prototype</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .ursh {
+            display: none;
+            margin: 20px;
+            width: 200px;
+            height: auto;
+            max-width: 100%;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .upload-area {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #imageUpload {
+            margin-bottom: 10px;
+        }
+
+        .analyze-btn {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .analyze-btn:hover {
+            background-color: #3e8e41;
+            transform: scale(1.05);
+        }
+
+        .analyze-btn:active {
+            transform: scale(0.95);
+        }
+
+        .loading-indicator {
+            display: none;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #loadingDots {
+            animation: loading-dots 2s infinite;
+        }
+
+        @keyframes loading-dots {
+            0% {
+                content: "";
+            }
+            25% {
+                content: ".";
+            }
+            50% {
+                content: "..";
+            }
+            75% {
+                content: "...";
+            }
+        }
+
+        .image-display {
+            display: none;
+            margin-bottom: 20px;
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .feedback-area {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .feedback-text {
+            font-size: 16px;
+            font-weight: normal;
+        }
+
+        .list-area {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .list-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .recycling-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .recycling-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .recycling-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Animations */
+
+        .upload-area,
+        .feedback-area,
+        .list-area {
+            animation: fade-in 0.5s ease;
+        }
+
+        @keyframes fade-in {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        #analyzeButton {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #analyzeButton:hover {
+            background-color: #3e8e41;
+            transform: scale(1.05);
+        }
+
+        #analyzeButton:active {
+            transform: scale(0.95);
+        }
+
+        .manual-input-area {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hidden */
+            position: relative;
+        }
+
+        #manualObjectName {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        #manualAnalyzeButton {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #manualAnalyzeButton:hover {
+            background-color: #3e8e41;
+            transform: scale(1.05);
+        }
+
+        #manualAnalyzeButton:active {
+            transform: scale(0.95);
+        }
+
+        #manualAnalyzeToggle {
+            background-color: #008CBA; /* Blue */
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;  /* Spacing from the image upload area */
+        }
+
+        #manualAnalyzeToggle:hover {
+            background-color: #0077a3;
+            transform: scale(1.05);
+        }
+
+        #manualAnalyzeToggle:active {
+            transform: scale(0.95);
+        }
+
+        /* New "Auto" Button Style (Initially Hidden) */
+        #autoAnalyzeToggle {
+            background-color: #008CBA; /* Blue */
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;  /* Spacing from the image upload area */
+        }
+
+        #autoAnalyzeToggle:hover {
+            background-color: #0077a3;
+            transform: scale(1.05);
+        }
+
+        #autoAnalyzeToggle:active {
+            transform: scale(0.95);
+        }
+
+        #suggestionList {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            z-index: 1;
+            display: none;
+            max-height: 150px; /* Limit height */
+            overflow-y: auto; /* Add scroll if necessary */
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Additional Styles for "What To Do" Section */
+        .what-to-do-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .what-to-do-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .what-to-do-buttons button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .what-to-do-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .what-to-do-buttons button:active {
+            transform: scale(0.95);
+        }
+
+        #nonRecyclableButton {
+            background-color: #f44336; /* Red */
+        }
+
+        #recyclableButton {
+            background-color: #4CAF50; /* Green */
+        }
+
+        /* Animated Words (using keyframes) */
+        .animated-word {
+            display: inline-block;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .animated-word:nth-child(2) { animation-delay: 0.5s; } /* Stagger animation */
+        .animated-word:nth-child(3) { animation-delay: 1s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">EcoLife Smart Recycling Bin</h1>
+
+         <!-- "What To Do" Section -->
+    <div class="animated-words">
+                <span class="animated-word">Upload an image</span>
+                <span class="animated-word">or</span>
+                <span class="animated-word">Enter Manually</span>
+            </div>
+        </div>
+        <center><h1>Check Status </h1></center>
+
+        <div class="upload-area">
+            <p>Simulate Image Upload:</p>
+            <input type="file" id="imageUpload" accept="image/*">
+
+            <!-- Initial state: Auto Button Shown, Manual Button Hidden -->
+            <button id="analyzeButton">Analyze</button>
+            <button id="manualAnalyzeToggle">Manual Analyzing</button>
+            <button id="autoAnalyzeToggle" style="display:none;">Auto</button>
+
+            <div class="manual-input-area" id="manualInputArea">
+                <p>Manual Object Name Input:</p>
+                <input type="text" id="manualObjectName" placeholder="Enter object name" autocomplete="off">
+                <div id="suggestionList"></div>
+                <button id="manualAnalyzeButton">Analyze</button>
+            </div>
+        </div>
+        <div id="loadingIndicator" class="loading-indicator">
+            <p>Analyzing image... <span id="loadingDots"></span></p>
+        </div>
+        <img id="imageDisplay" class="ursh image-display" src="" alt="Uploaded Image" style="display: none;">
+        <div class="feedback-area">
+            <h2 class="feedback-title">Feedback:</h2>
+            <p id="feedbackText" class="feedback-text">Upload an image to get started.</p>
+        </div>
+        <div class="list-area">
+            <h2 class="list-title">Recycling Log</h2>
+            <ul id="recyclingList" class="recycling-list"></ul>
+        </div>
+
+        <!-- "What To Do" Buttons (Moved to the bottom) -->
+             <div class="what-to-do-section">
+            <center><h1>WHAT TO DO FOR</h1></center>
+            <div
+        <div class="what-to-do-buttons">
+            <a href="recyclable.html"><button id="nonRecyclableButton">Non-recyclables</button></a>
+            <a href="recyclable.html"><button id="recyclableButton">Recyclables</button></a>
+        </div>
+    </div>
+
+    <script>
+        // Get the elements
+        const imageUpload = document.getElementById('imageUpload');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const feedbackText = document.getElementById('feedbackText');
+        const recyclingList = document.getElementById('recyclingList');
+        const imageDisplay = document.getElementById('imageDisplay');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingDots = document.getElementById('loadingDots');
+        const manualObjectNameInput = document.getElementById('manualObjectName');
+        const manualAnalyzeButton = document.getElementById('manualAnalyzeButton');
+        const manualAnalyzeToggle = document.getElementById('manualAnalyzeToggle');
+        const manualInputArea = document.getElementById('manualInputArea');
+        const autoAnalyzeToggle = document.getElementById('autoAnalyzeToggle');
+        const suggestionList = document.getElementById('suggestionList');
+        const nonRecyclableButton = document.getElementById('nonRecyclableButton');
+        const recyclableButton = document.getElementById('recyclableButton');
+
+        // Define a set of recyclable items (consider a more comprehensive list)
+        const recyclableItems = new Set([
+            'plastic', 'plastic bottle', 'plastic container', 'plastic wrap', 'plastic bag',
+            'glass', 'glass bottle', 'glass jar',
+            'aluminum', 'aluminum can', 'aluminum foil', 'aluminum tray',
+            'steel', 'steel can', 'tin can', 'metal can lid', 'scrap metal',
+            'paper', 'cardboard', 'newspaper', 'magazine', 'mixed paper', 'paper bag', 'cereal box',
+            'carton', 'juice box', 'milk carton',
+            'electronics', 'e-waste', 'printer', 'laptop', 'tablet', 'cell phone',
+            'textiles', 'clothing', 'fabric',
+            'yard waste', 'food waste', 'compost', 'copper', 'wire' ,
+            'battery', 'battery pack' // Added battery
+        ]);
+
+
+        // Define a function to check if an item is recyclable
+        function isRecyclable(itemName) {
+            //  Improved Recyclability Check: Check for ANY of the keywords
+            const lowerCaseName = itemName.toLowerCase();
+            for (const item of recyclableItems) {
+                if (lowerCaseName.includes(item)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+
+        // Function to display the image
+        function displayImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imageDisplay.src = e.target.result;
+                imageDisplay.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // Function to update the loading indicator
+        function updateLoadingIndicator(isLoading) {
+            loadingIndicator.style.display = isLoading ? 'block' : 'none';
+            if (isLoading) {
+                loadingDots.textContent = ""; // Clear dots initially
+                let dotCount = 0;
+                const loadingInterval = setInterval(() => {
+                    dotCount = (dotCount + 1) % 4;
+                    loadingDots.textContent = ".".repeat(dotCount);
+                }, 500);
+                return () => clearInterval(loadingInterval); // Return a function to clear the interval
+            }
+            return null; // No cleanup function if not loading
+        }
+
+        // Function to add item to the recycling log
+        function addToRecyclingLog(itemName, isRecyclable, confidence = null, manualInput = false) {
+            const listItem = document.createElement('li');
+            let text = manualInput ? 'Manual Input - ' : '';
+            text += `${itemName} - ${isRecyclable ? 'Recyclable' : 'Not Recyclable'}`;
+            if (confidence !== null) {
+                text += ` (Confidence: ${confidence.toFixed(2)})`;
+            }
+            listItem.textContent = text;
+            recyclingList.appendChild(listItem);
+
+            // Provide more specific feedback
+            let feedback = `Identified: ${itemName}.  ${isRecyclable ? 'This item is likely recyclable.' : 'This item is not likely recyclable.'}`;
+            if (confidence) {
+                feedback += ` (Confidence: ${confidence.toFixed(2)}).`;
+            }
+            feedbackText.textContent = feedback;
+
+             // Alert for recyclability
+            let alertMessage = `The item "${itemName}" is ${isRecyclable ? 'recyclable' : 'not recyclable'}.`;
+            alert(alertMessage);
+        }
+
+        // Function to handle API errors
+        function handleApiError(error) {
+            console.error('API Error:', error);
+            feedbackText.textContent = "An error occurred during analysis. Please try again.";
+            // Optionally, log the error to a server for debugging
+            alert("An error occurred during the automatic analysis. Please try again or use the manual input."); // Added alert
+        }
+
+
+        // Function to analyze the image
+        async function analyzeImage() {
+            const file = imageUpload.files[0];
+
+            if (!file) {
+                feedbackText.textContent = "Please upload an image first.";
+                return;
+            }
+
+            displayImage(file); // Display the image
+
+            // Start the loading indicator and get the cleanup function
+            const cleanupLoading = updateLoadingIndicator(true);
+            let autoAnalysisFailed = false; // Flag to track auto-analysis failure
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`); // HTTP Error Handling
+                }
+
+                const data = await response.json();
+
+                if (!data.responses || !data.responses[0] || !data.responses[0].labelAnnotations) {
+                    // If auto-analysis fails, set the flag
+                    autoAnalysisFailed = true;
+                    feedbackText.textContent = "Automatic analysis failed. Redirecting to manual input...";
+                    alert("Automatic analysis failed. Please use the manual input option."); // Added Alert
+                } else {
+                    const annotations = data.responses[0].labelAnnotations;
+
+                    if (annotations && annotations.length > 0) {
+                        const topAnnotation = annotations[0];
+                        const itemName = topAnnotation.description;
+                        const confidence = topAnnotation.score;
+
+                        const recyclable = isRecyclable(itemName);
+                        addToRecyclingLog(itemName, recyclable, confidence);
+                    } else {
+                        autoAnalysisFailed = true;
+                        feedbackText.textContent = "Could not identify the item in the image. Redirecting to manual input...";
+                        alert("Could not identify the item in the image. Please use the manual input option.");  // Added Alert
+                    }
+                }
+
+
+            } catch (error) {
+                handleApiError(error);  // Call error handling function
+                autoAnalysisFailed = true; // Also fail if an error occurs.
+            } finally {
+                if (cleanupLoading) cleanupLoading(); // Ensure loading indicator is cleared
+                if (autoAnalysisFailed) {
+                    // Show the manual input area
+                    manualInputArea.style.display = 'block';
+                    analyzeButton.style.display = 'none';
+                    manualAnalyzeToggle.style.display = 'none'; // Hide Manual Analyzing
+                    autoAnalyzeToggle.style.display = 'block';
+                }
+            }
+        }
+
+
+        // Manual Analysis Functionality
+        manualAnalyzeButton.addEventListener('click', () => {
+            const manualObjectName = manualObjectNameInput.value.trim();
+            if (manualObjectName) {
+                const recyclable = isRecyclable(manualObjectName);
+                addToRecyclingLog(manualObjectName, recyclable, null, true); // Mark as manual input
+                manualObjectNameInput.value = ''; // Clear the input
+            } else {
+                feedbackText.textContent = "Please enter an object name.";
+            }
+        });
+
+
+        // Manual/Auto Toggle Button Functionality
+        manualAnalyzeToggle.addEventListener('click', () => {
+            manualInputArea.style.display = manualInputArea.style.display === 'none' ? 'block' : 'none';
+            analyzeButton.style.display = manualInputArea.style.display === 'none' ? 'block' : 'none';
+            autoAnalyzeToggle.style.display = manualInputArea.style.display !== 'none' ? 'block' : 'none';
+            manualAnalyzeToggle.style.display = manualInputArea.style.display === 'none' ? 'block' : 'none';
+            manualAnalyzeToggle.textContent = manualInputArea.style.display === 'none' ? 'Manual Analyzing' : 'Hide Manual Analyzing';
+        });
+
+
+        // Auto-Suggestion Functionality
+        function updateSuggestions(value) {
+            suggestionList.innerHTML = ''; // Clear existing suggestions
+
+            if (!value) {
+                suggestionList.style.display = 'none';
+                return;
+            }
+
+            const filteredSuggestions = Array.from(recyclableItems).filter(item =>
+                item.toLowerCase().startsWith(value.toLowerCase())
+            );
+
+            if (filteredSuggestions.length === 0) {
+                suggestionList.style.display = 'none';
+                return;
+            }
+
+            filteredSuggestions.forEach(suggestion => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.classList.add('suggestion-item');
+                suggestionItem.textContent = suggestion;
+                suggestionItem.addEventListener('click', () => {
+                    manualObjectNameInput.value = suggestion;
+                    suggestionList.style.display = 'none';
+                    manualObjectNameInput.focus(); // Keep focus in the input
+                });
+                suggestionList.appendChild(suggestionItem);
+            });
+
+            suggestionList.style.display = 'block';
+        }
+
+        // Event Listeners for Auto-Suggestions
+        manualObjectNameInput.addEventListener('input', (e) => {
+            updateSuggestions(e.target.value);
+        });
+
+        // Hide suggestions when input loses focus
+        manualObjectNameInput.addEventListener('blur', () => {
+            setTimeout(() => { // Use a timeout to allow click events to fire
+                suggestionList.style.display = 'none';
+            }, 100);
+        });
+
+        //Show suggestions on focus
+        manualObjectNameInput.addEventListener('focus', () => {
+            updateSuggestions(manualObjectNameInput.value);
+        });
+
+        // Event Listeners
+        analyzeButton.addEventListener('click', analyzeImage);
+
+        // Example: Redirect to non-recyclable/recyclable information (Replace with actual logic)
+        // nonRecyclableButton.addEventListener('click', () => {
+        //     alert("Redirecting to non-recyclable information page");
+        //     // Replace this with the actual navigation or content display logic
+        // });
+
+        // recyclableButton.addEventListener('click', () => {
+        //     alert("Redirecting to recyclable information page");
+        //     // Replace this with the actual navigation or content display logic
+        // });
+    </script>    
+</body>
+</html>
